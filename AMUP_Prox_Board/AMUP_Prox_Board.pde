@@ -61,7 +61,9 @@ void handle_serial_input () {
         char new_serial = Serial.read();
         if (new_serial == 's' || new_serial == 'S') {
           connection_started = true; 
+          Serial.print('s');
         }
+
         else if (new_serial == 'k') {
             if (!lock_on) {
               lock_on = true; 
@@ -73,7 +75,7 @@ void handle_serial_input () {
               lock_on = false;
               current_color = R;
               update_leds(previous_vol);
-//              air_sensor = AMUP_Air_Sensor();
+              air_sensor.reset();
               Serial.println("lock switched to false");
             }
         }
