@@ -20,10 +20,10 @@ void request_id_number() {
       for (int i = 0; i < inputDigitalRGB; i++) {
           prep_mux(i);
           if (rgb_buttons[i].hasStateChanged()) {
-            if (i == 3 || i == 4) pad_id = 0;
-            else if (i == 2 || i == 5) pad_id = 1;
-            else if (i == 1 || i == 6) pad_id = 2;
-            else if (i == 0 || i == 7) pad_id = 3;
+            if (i == 3 || i == 4) pad_id = 20;
+            else if (i == 2 || i == 5) pad_id = 21;
+            else if (i == 1 || i == 6) pad_id = 22;
+            else if (i == 0 || i == 7) pad_id = 23;
           }
       }
   }
@@ -36,7 +36,7 @@ void request_air_confirmation() {
     int current_led = 7;
     char new_serial = '\0';
 
-    while (new_serial != 's') {
+    while (new_serial != connect_char) {
        
         // scroll LED lights to request input from user and via serial, until input is received
        if (millis() - last_change > change_interval) {
@@ -47,9 +47,9 @@ void request_air_confirmation() {
             last_change = millis();
             current_led--;
             if (current_led < 0) current_led = 7; 
-            Serial.print('s');
+            Serial.print(connect_char);
             prep_mux(8);
-            if (switches[1].hasStateChanged()) new_serial = 's';
+            if (switches[1].hasStateChanged()) new_serial = connect_char;
 
         }
   
