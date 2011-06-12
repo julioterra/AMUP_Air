@@ -2,17 +2,9 @@ void handle_rgb_buttons() {
     for (int i = 0; i < inputDigitalRGB; i++) {
         prep_mux(i);
         if (rgb_buttons[i].hasStateChanged()) {
-            new_data[i] = rgb_buttons[i].getState();
-            transmit = true;
-  
-//            if (debug_code) {
-//                Serial.print(pad_id);
-//                Serial.print(" ");
-//                Serial.print(rgb_buttons[i].ID);
-//                Serial.print(" ");
-//                Serial.println(new_data[i]);
-//            }
-  
+//            new_data[i] = rgb_buttons[i].getState();
+//            transmit = true;  
+            add_to_message(i, rgb_buttons[i].getState());
         }
     }
     Tlc.update();
@@ -22,16 +14,12 @@ void handle_switches() {
     for (int i = 0; i < inputDigital; i++) {
       prep_mux(inputOffsetDigital+i);
         if (switches[i].hasStateChanged()) {
-            new_data[inputOffsetDigital+i] = switches[i].getState();          
-            transmit = true;
-
-//            if (debug_code) {
-//                Serial.print(pad_id);
-//                Serial.print(" ");
-//                Serial.print(switches[i].ID);
-//                Serial.print(" ");
-//                Serial.println(new_data[inputOffsetDigital+i]);
-//            }
+            int new_reading = switches[i].getState();
+            add_to_message(inputOffsetDigital+i, new_reading);
+//            new_data[inputOffsetDigital+i] = switches[i].getState();          
+//            transmit = true;
+            if (i == 1 && new_reading > 0) Serial.print(lock_on_char);
+            else if (i == 1) Serial.print(lock_off_char);
         }
     }
 }
@@ -41,25 +29,13 @@ void handle_analog_switches() {
     for (int i = 0; i < inputAnalog; i++) {
         prep_mux(inputOffsetAnalog+i);
         if (analog_switches[i].hasStateChanged()) {
-            new_data[inputOffsetAnalog+i] = analog_switches[i].getState();
-            transmit = true;
-
-//            if (debug_code) {
-//                Serial.print(pad_id);
-//                Serial.print(" ");
-//                Serial.print(analog_switches[i].ID);
-//                Serial.print(" ");
-//                Serial.println(new_data[inputOffsetAnalog+i]);
-//            }
+//            new_data[inputOffsetAnalog+i] = analog_switches[i].getState();
+//            transmit = true;
+            add_to_message(inputOffsetAnalog+i, analog_switches[i].getState());
         }
     }
 }
 
-/**
-Create one long message with updates for all buttons
-
-
-**/
 
 void handle_serial_input () {
     if (Serial.available()) {
@@ -72,32 +48,31 @@ void handle_serial_input () {
 //        Serial.print(" length ");
 //        Serial.println(strlen(message));
         
-        if (new_serial == 'd' || new_serial == 'D') {
-            for (int i = 0; i < inputDigitalRGB; i++) rgb_buttons[i].debugToggle(); 
-        }
-        else if (new_serial >= '0' && new_serial <= '9') {
+//        if (new_serial == 'd' || new_serial == 'D') {
+//            for (int i = 0; i < inputDigitalRGB; i++) rgb_buttons[i].debugToggle(); 
+//        }
+        
+        if (new_serial >= '0' && new_serial <= '9') {
             serial_message[serial_message_counter] = new_serial;
             serial_last_received = millis();
             serial_message_counter++;
             
         } 
+        
+        // if message from proximity sensor is too long, then throw it out
         else if (serial_message_counter >= serial_max_length) 
-            reset_serial_message();       
+            reset_serial_message();  
+            
         else if ((new_serial == '\r' || new_serial == '\n' || new_serial == ';') && serial_message_counter > 0) {
-            new_data[inputOffsetAir] = int(serial_message);
+//            new_data[inputOffsetAir] = int(serial_message);
+            add_to_message(inputOffsetAir, int(serial_message));
             transmit = true; 
-//            if (debug_code) {         
-//                Serial.print(pad_id);
-//                Serial.print(" ");
-//                Serial.print(16);
-//                Serial.print(" ");
-//                for (int i = 0; i < serial_message_counter; i++) Serial.print(serial_message[i]);
-//                Serial.println();
-//            }
             reset_serial_message();          
         } 
         
     }
+    
+    // if too much time has passed since data was received then throw it out
     if (millis() - serial_last_received > serial_receive_interval && serial_message_counter > 0) {
         reset_serial_message();
     }
