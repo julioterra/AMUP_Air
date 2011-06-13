@@ -2,10 +2,12 @@ void handle_serial_input () {
     if (Serial.available()) {
         char new_serial = Serial.read();
 
-       if (new_serial == AIR_CONNECT_CHAR) {
+       if (new_serial == AIR_CONNECT_REQUEST_CHAR) {
           connection_started = true; 
-          Serial.println("connected to air sensor.");
+          Serial.print(AIR_CONNECT_ACCEPT_CHAR);
+          Serial.println(": connection to air sensor established.");
        }
+
        else if (new_serial == AIR_LOCK_ON_CHAR) {
               lock_on = true; 
               current_color = LOCK_ON_COLOR;
