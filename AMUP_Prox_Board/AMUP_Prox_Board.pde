@@ -1,14 +1,16 @@
 #include <Tlc5940.h>
 #include <tlc_config.h>
 #include <tlc_progmem_utils.h>
+
 #include <AirSensor.h>
 #include <AMUPconfig.h>
 
 // ARDUINO PIN DEFINIONS
-#define AIR_PIN          A0
+#define AIR_PIN           A0
 #define LED_COUNT         10
-#define RGB_COUNT         3
-#define LED_VOL_CONVERT  12
+#define LED_VOL_CONVERT   12
+#define LOCK_ON_COLOR     B
+#define LOCK_OFF_COLOR    R
 
 // LED PIN DEFINITION (pins on TLC 5940)
 int const rgbLED [LED_COUNT][RGB_COUNT] = {28,30,29,25,27,26,22,24,23,19,21,20,
@@ -18,65 +20,25 @@ int const rgbLED [LED_COUNT][RGB_COUNT] = {28,30,29,25,27,26,22,24,23,19,21,20,
 
 AirSensor air_sensor = AirSensor(AIR_PIN);
 
-int current_vol = 0;
-int previous_vol = 0;
-int current_color = R;
-boolean connection_started = false;
-boolean lock_on = false;
+int current_vol;              // holds the current output volume
+int previous_vol;             // holds the previous output volume, to determine if volume has changed
+int current_color;            // holds the current color of the volume display leds
+boolean connection_started;   // 
+boolean lock_on;
 
 void setup() {
   Tlc.init(0);
   Serial.begin(57600);
-  Serial.println("send \'c\' to connect.");
   connection_started = false;
+  lock_on = false;
+  current_color = LOCK_OFF_COLOR;
+  previous_vol = 0;
+  current_vol = 0;
+  Serial.println("init complete. send \'c\' to connect.");
 }
 
 void loop() {
-    handle_serial_input();
-    sense_and_send();
-}
-
-void handle_serial_input () {
-    if (Serial.available()) {
-        char new_serial = Serial.read();
-
-       if (new_serial == AIR_CONNECT_CHAR) {
-          connection_started = true; 
-          Serial.println("connected to air.");
-       }
-       else if (new_serial == AIR_LOCK_ON_CHAR) {
-              lock_on = true; 
-              current_color = B;
-              update_leds(previous_vol);
-       } 
-       else if (new_serial == AIR_LOCK_OFF_CHAR){
-              lock_on = false;
-              current_color = R;
-              update_leds(previous_vol);
-              air_sensor.reset();
-        }
-    }
-}
-
-void sense_and_send() {
-     if (connection_started && !lock_on) {
-       // read data and print to serial if appropriate 
-       current_vol = air_sensor.play();      
-
-        // if volume has changed then update the leds
-        if (current_vol != previous_vol && current_vol != -1) {
-            update_leds(current_vol);
-            previous_vol = current_vol; 
-        }
-    }
-}
-
-void update_leds(int volume) {
-   Tlc.clear();
-   for (int i = 0; i < volume/LED_VOL_CONVERT; i ++) {
-        if (i == volume/LED_VOL_CONVERT-1) Tlc.set(rgbLED[i][current_color], volume/127*LED_MAX_BRIGHT);     
-         Tlc.set(rgbLED[i][current_color], LED_MAX_BRIGHT);    
-   }
-   Tlc.update();   
+    handle_serial_input();   // listens to serial input for connect and lock messages
+    sense_and_send();        // reads air sensor, processes data, and writes results to serial
 }
 
