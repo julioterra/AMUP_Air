@@ -23,7 +23,7 @@ AirSensor air_sensor = AirSensor(AIR_PIN);
 int current_vol;              // holds the current output volume
 int previous_vol;             // holds the previous output volume, to determine if volume has changed
 int current_color;            // holds the current color of the volume display leds
-boolean connection_started;   // 
+volatile boolean connection_started;   // 
 boolean lock_on;
 
 void setup() {

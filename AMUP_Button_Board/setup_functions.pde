@@ -1,3 +1,22 @@
+void register_mux_and_led_pins() {
+  for (int i = 0; i < 4; i++) 
+      pinMode(muxControlPin[i], OUTPUT);
+  Tlc.init(0);
+}
+
+void register_rgb_button_states() {
+  int switchRGB [inputDigitalRGB][RGB_COUNT] = {2,1,0,      5,4,3,        8,7,6,      11,10,9,    16,17,18,   19,20,21,    22,23,24,    25,26,27};
+                                                   
+  for (int i = 0; i < inputDigitalRGB; i++) {
+      rgb_buttons[i].setLEDpins(switchRGB[i][R], switchRGB[i][G], switchRGB[i][B]); 
+      rgb_buttons[i].setDigitalLEDState(0, random(1000), random(1000), random(1000));
+      rgb_buttons[i].setDigitalLEDState(1, random(1000), random(1000), random(1000));
+      rgb_buttons[i].setDigitalLEDState(2, random(1000), random(1000), random(1000));
+      rgb_buttons[i].setDigitalLEDState(3, random(1000), random(1000), random(1000));
+      rgb_buttons[i].setDigitalLEDState(4, 0,0,0);
+  }
+}
+
 void request_id_number() {
   long last_change = millis();
   int change_interval = 100;
@@ -35,8 +54,9 @@ void request_air_confirmation() {
     int change_interval = 100;
     int current_led = 7;
     char new_serial = '\0';
-
-    while (new_serial != connect_char) {
+    reset_serial_receive_message();
+    
+    while (new_serial != AIR_CONNECT_ACCEPT_CHAR) {
        
         // scroll LED lights to request input from user and via serial, until input is received
        if (millis() - last_change > change_interval) {
@@ -47,9 +67,9 @@ void request_air_confirmation() {
             last_change = millis();
             current_led--;
             if (current_led < 0) current_led = 7; 
-            Serial.print(connect_char);
+            Serial.println(AIR_CONNECT_REQUEST_CHAR);
             prep_mux(8);
-            if (switches[1].hasStateChanged()) new_serial = connect_char;
+            if (switches[1].hasStateChanged()) new_serial = AIR_CONNECT_ACCEPT_CHAR;
 
         }
   
@@ -77,25 +97,6 @@ void request_air_confirmation() {
     // turn on all led lights for the current button states
     for (int i = 0; i < inputDigitalRGB; i++) rgb_buttons[i].turnOnLEDs();
     Tlc.update();
-}
-
-void register_rgb_button_states() {
-  int switchRGB [inputDigitalRGB][rgbCount] = {2,1,0,      5,4,3,        8,7,6,      11,10,9,    16,17,18,   19,20,21,    22,23,24,    25,26,27};
-                                                   
-  for (int i = 0; i < inputDigitalRGB; i++) {
-      rgb_buttons[i].setLEDpins(switchRGB[i][R], switchRGB[i][G], switchRGB[i][B]); 
-      rgb_buttons[i].setDigitalLEDState(0, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(1, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(2, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(3, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(4, 0,0,0);
-  }
-}
-
-void register_mux_and_led_pins() {
-  for (int i = 0; i < 4; i++) 
-      pinMode(muxControlPin[i], OUTPUT);
-  Tlc.init(0);
 }
 
 void prep_mux(int i) {
