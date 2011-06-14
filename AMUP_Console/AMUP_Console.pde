@@ -1,11 +1,4 @@
-// Wire Master Reader
-// by Nicholas Zambetti <http://www.zambetti.com>
-// Demonstrates use of the Wire library
-// Reads data from an I2C/TWI slave device
-// Refer to the "Wire Slave Sender" example for use with this
-// Created 29 March 2006
 
-// This example code is in the public domain.
 #include <Wire.h>
 #include <Tlc5940.h>
 
@@ -13,18 +6,27 @@
 #include <RotaryEncoder.h>
 #include <AnalogSwitch.h>
 #include <Switch.h>
+#include <RGBButtonMatrix.h>
 
 #define CONSOLE_ID          0
+#define BUTTON_COUNT        4
 
 int analog_switch_pin = A10;
-int switch_pin_1 = A2;
-int switch_pins[4] = {A4,A5,A9,A7};
+int switch_pins[4] = {A4,A5,A9,A8};
+int button_input_pins[4] = {A0,A1,A2,A3};
+int button_led_pins[BUTTON_COUNT] = {10,11,12,13};
+int rgb_pins[] = {7,8,9};
+
 
 #define ENCDDER_COUNT      3
 #define SWITCH_COUNT       4
+#define RGB_BUTTON_COUNT   4
+
 RotaryEncoder encoders[ENCDDER_COUNT] = {RotaryEncoder(0,0,2,4), RotaryEncoder(0,1,3,5), RotaryEncoder(0,2,18,6)};
 AnalogSwitch main_vol = AnalogSwitch(3,analog_switch_pin);
-Switch switches[SWITCH_COUNT] = {Switch(4, switch_pins[0]), Switch(5, switch_pins[1]), Switch(6, switch_pins[2]), Switch(7, switch_pins[3])}; 
+Switch switches[SWITCH_COUNT] = {Switch(4, switch_pins[0]), Switch(5, switch_pins[1]), Switch(6, switch_pins[2]), Switch(7, switch_pins[3])};
+RGBButtonMatrix buttons[RGB_BUTTON_COUNT] = {RGBButtonMatrix(8, button_input_pins[0],4), RGBButtonMatrix(9, button_input_pins[1],4), 
+                                             RGBButtonMatrix(10, button_input_pins[2],4), RGBButtonMatrix(11, button_input_pins[3],4)}; 
 
 
 void setup() {
@@ -36,56 +38,61 @@ void setup() {
   attachInterrupt(encoders[2].get_interrupt_pin(), encoder2Event, CHANGE);
   
   for(int i = 0; i < SWITCH_COUNT; i++) {
-      switches[i].invertSwitch(true); 
+      switches[i].invert_switch(true); 
+  }
+  for(int i = 0; i < RGB_BUTTON_COUNT; i++) {
+      buttons[i].set_led_pins(button_led_pins[i], rgb_pins[R], rgb_pins[G], rgb_pins[B]);
+      buttons[i].invert_switch(true); 
+      buttons[i].set_led_state(0, 0, 0, 0);
+      buttons[i].set_led_state(1, 1, random(-1,2), random(-1,2));
+      buttons[i].set_led_state(2, random(-1,2), 1, random(-1,2));
+      buttons[i].set_led_state(3, random(-1,2), random(-1,2), 1);
+      delay(400);
   }
 }
 
 void loop() {
-  Serial.print("A6: ");
-  Serial.print(digitalRead(A6));
-  Serial.print(" A7: ");
-  Serial.print(digitalRead(A7));
-  Serial.print(" A8: ");
-  Serial.print(digitalRead(A8));
-  Serial.print(" A9: ");
-  Serial.print(digitalRead(A9));
-  Serial.print(" A10: ");
-  Serial.print(digitalRead(A10));
-  Serial.print(" A11: ");
-  Serial.print(digitalRead(A11));
-  Serial.print(" A12: ");
-  Serial.println(digitalRead(A12));
   receiveI2C(20);
   receiveI2C(21);
 //  receiveI2C(22);
 //  receiveI2C(23);
-  for (int i = 0; i < 3; i++) {
-      if (encoders[i].available()) encoders[i].get_print_state();
-  }
-  if (main_vol.hasStateChanged()) {
-      Serial.print(CONSOLE_ID);
-      Serial.print(" ");
-      Serial.print(main_vol.ID);
-      Serial.print(" ");
-      Serial.println(main_vol.getState()); 
-  }
-    for(int i = 0; i < 4; i++) {
-      if(switches[i].hasStateChanged()) {
-          Serial.print(CONSOLE_ID);
-          Serial.print(" ");
-          Serial.print(switches[i].ID);
-          Serial.print(" ");
-          Serial.println(switches[i].getState()); 
-      } 
-  }
-
-
-
-  
-
+  read_and_send_data();
 }
 
 void encoder0Event() { encoders[0].event(); }
 void encoder1Event() { encoders[1].event(); }
 void encoder2Event() { encoders[2].event(); }
+
+void read_and_send_data() {
+    for (int i = 0; i < 3; i++) {
+        if (encoders[i].available()) encoders[i].get_print_state();
+    }
+
+    if (main_vol.hasStateChanged()) {
+        Serial.print(CONSOLE_ID);
+        Serial.print(" ");
+        Serial.print(main_vol.ID);
+        Serial.print(" ");
+        Serial.println(main_vol.getState()); 
+    }
+      for(int i = 0; i < 4; i++) {
+        if(switches[i].available()) {
+            Serial.print(CONSOLE_ID);
+            Serial.print(" ");
+            Serial.print(switches[i].ID);
+            Serial.print(" ");
+            Serial.println(switches[i].get_state()); 
+        } 
+    }
+  
+    for(int i = 0; i < 4; i++) {
+        if(buttons[i].available()) {
+            Serial.print(CONSOLE_ID);
+            Serial.print(" ");
+            Serial.print(buttons[i].ID);
+            Serial.print(" ");
+            Serial.println(buttons[i].get_state()); 
+        } 
+    } 
+}
 
