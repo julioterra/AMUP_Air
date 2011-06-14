@@ -35,8 +35,6 @@ int serial_receive_message_counter = 0;   // holds the current position on the
 long serial_last_received = 0;            // holds when a partial serial message was last received 
 int serial_receive_interval = 500;        // holds how long to hold a partial message before discarting the contents
 
-boolean debug_code = false;
-
 RGBButtonTLC rgb_buttons[inputDigitalRGB] = {RGBButtonTLC(0, A3, 5),RGBButtonTLC(1, A3, 5),RGBButtonTLC(2, A3, 5),
                                              RGBButtonTLC(3, A3, 5),RGBButtonTLC(4, A3, 5),RGBButtonTLC(5, A3, 5),
                                              RGBButtonTLC(6, A3, 5),RGBButtonTLC(7, A3, 5)};
