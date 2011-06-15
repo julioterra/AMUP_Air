@@ -8,12 +8,12 @@ void register_rgb_button_states() {
   int switchRGB [inputDigitalRGB][RGB_COUNT] = {2,1,0,      5,4,3,        8,7,6,      11,10,9,    16,17,18,   19,20,21,    22,23,24,    25,26,27};
                                                    
   for (int i = 0; i < inputDigitalRGB; i++) {
-      rgb_buttons[i].setLEDpins(switchRGB[i][R], switchRGB[i][G], switchRGB[i][B]); 
-      rgb_buttons[i].setDigitalLEDState(0, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(1, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(2, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(3, random(1000), random(1000), random(1000));
-      rgb_buttons[i].setDigitalLEDState(4, 0,0,0);
+      rgb_buttons[i].set_led_pins(switchRGB[i][R], switchRGB[i][G], switchRGB[i][B]); 
+      rgb_buttons[i].set_led_state(0, random(1000), random(1000), random(1000));
+      rgb_buttons[i].set_led_state(1, random(1000), random(1000), random(1000));
+      rgb_buttons[i].set_led_state(2, random(1000), random(1000), random(1000));
+      rgb_buttons[i].set_led_state(3, random(1000), random(1000), random(1000));
+      rgb_buttons[i].set_led_state(4, 0,0,0);
   }
 }
 
@@ -27,7 +27,8 @@ void request_id_number() {
      // control LED light blinking
      if (millis() - last_change > change_interval) {
           Tlc.clear();
-          rgb_buttons[current_led].turnOnLEDs();
+          rgb_buttons[current_led].turn_on_leds();
+          rgb_buttons[current_led].update_leds();
           Tlc.update();
 
           last_change = millis();
@@ -38,7 +39,7 @@ void request_id_number() {
       // read input from pad to determine ID number of this button pad
       for (int i = 0; i < inputDigitalRGB; i++) {
           prep_mux(i);
-          if (rgb_buttons[i].hasStateChanged()) {
+          if (rgb_buttons[i].available()) {
             if (i == 3 || i == 4) pad_id = 20;
             else if (i == 2 || i == 5) pad_id = 21;
             else if (i == 1 || i == 6) pad_id = 22;
@@ -61,7 +62,9 @@ void request_air_confirmation() {
         // scroll LED lights to request input from user and via serial, until input is received
        if (millis() - last_change > change_interval) {
             Tlc.clear();
-            rgb_buttons[current_led].turnOnLEDs();
+            rgb_buttons[current_led].turn_on_leds();
+            rgb_buttons[current_led].update_leds();
+
             Tlc.update();
             
             last_change = millis();
@@ -69,7 +72,7 @@ void request_air_confirmation() {
             if (current_led < 0) current_led = 7; 
             Serial.println(AIR_CONNECT_REQUEST_CHAR);
             prep_mux(8);
-            if (switches[1].hasStateChanged()) new_serial = AIR_CONNECT_ACCEPT_CHAR;
+            if (switches[1].available()) new_serial = AIR_CONNECT_ACCEPT_CHAR;
 
         }
   
@@ -83,9 +86,15 @@ void request_air_confirmation() {
        if (millis() - last_change > change_interval) {
           Tlc.clear();
           if (notify_counter % 2 == 1) {
-              for (int i = 0; i < 8; i++) rgb_buttons[i].turnOnLEDs(0,500,0);
+              for (int i = 0; i < 8; i++) {
+                rgb_buttons[i].turn_on_leds(0,500,0);
+                rgb_buttons[i].update_leds();
+              }
           } else {
-              for (int i = 0; i < 8; i++) rgb_buttons[i].turnOffLEDs();
+              for (int i = 0; i < 8; i++) {
+                rgb_buttons[i].turn_off_leds();
+                rgb_buttons[i].update_leds();
+              }
           }
           Tlc.update();
 
@@ -95,7 +104,10 @@ void request_air_confirmation() {
     }
 
     // turn on all led lights for the current button states
-    for (int i = 0; i < inputDigitalRGB; i++) rgb_buttons[i].turnOnLEDs();
+    for (int i = 0; i < inputDigitalRGB; i++) {
+      rgb_buttons[i].set_current_led_state(0);
+      rgb_buttons[i].turn_on_leds();
+    }
     Tlc.update();
 }
 

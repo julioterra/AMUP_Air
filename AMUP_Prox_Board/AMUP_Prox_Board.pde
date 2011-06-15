@@ -18,7 +18,7 @@ int const rgbLED [LED_COUNT][RGB_COUNT] = {28,30,29,25,27,26,22,24,23,19,21,20,
 // IMPORTANT NOTE: five digital pins are used to control the LED drivers (TLC 5940); pins 3, 9, 10, 11, 13.
 // Communication uses a synchronized serial protocol
 
-AirSensor air_sensor = AirSensor(AIR_PIN);
+AirSensor air_sensor = AirSensor(16, AIR_PIN);
 
 int current_vol;              // holds the current output volume
 int previous_vol;             // holds the previous output volume, to determine if volume has changed
