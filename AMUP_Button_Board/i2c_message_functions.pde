@@ -8,16 +8,16 @@ void add_to_i2c_message(int id_number, int value) {
     i2c_transmit_index++;
     i2c_transmit = true;
     
-//    if (debug_code) {
-//        Serial.print("New Data: ");
-//        Serial.print(pad_id);
-//        Serial.print(" ");
-//        Serial.print(id_number);
-//        Serial.print(" ");
-//        Serial.println(value);
-//        Serial.print("Full Message: ");
-//        Serial.println(i2c_transmit_message);
-//    }
+    if (debug_code) {
+        Serial.print("New Data: ");
+        Serial.print(pad_id);
+        Serial.print(" ");
+        Serial.print(id_number);
+        Serial.print(" ");
+        Serial.println(value);
+        Serial.print("Full Message: ");
+        Serial.println(i2c_transmit_message);
+    }
 }
 
 void reset_i2c_message() {
