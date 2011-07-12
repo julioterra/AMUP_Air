@@ -24,8 +24,8 @@ void handle_switches() {
 void handle_analog_switches() {
     for (int i = 0; i < inputAnalog; i++) {
         prep_mux(inputOffsetAnalog+i);
-        if (analog_switches[i].hasStateChanged()) {
-            add_to_i2c_message(inputOffsetAnalog+i, analog_switches[i].getState());
+        if (analog_switches[i].available()) {
+            add_to_i2c_message(inputOffsetAnalog+i, analog_switches[i].get_state());
         }
     }
 }
