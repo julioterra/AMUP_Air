@@ -55,7 +55,7 @@ void request_air_confirmation() {
     int change_interval = 100;
     int current_led = 7;
     char new_serial = '\0';
-    reset_serial_receive_message();
+//    reset_serial_receive_message();
     
     while (new_serial != AIR_CONNECT_ACCEPT_CHAR) {
        

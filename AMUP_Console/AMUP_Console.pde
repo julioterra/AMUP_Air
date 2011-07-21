@@ -1,4 +1,3 @@
-
 #include <Wire.h>
 #include <Tlc5940.h>
 
@@ -8,26 +7,51 @@
 #include <Switch.h>
 #include <RGBButtonMatrix.h>
 
-#define CONSOLE_ID          0
-#define BUTTON_COUNT        4
+#define MIDI_GLOBAL_CHANNEL    191 // midi cc channel 16
+#define MIDI_MSG_END           255
+#define ENCDDER_COUNT          3
+#define SWITCH_COUNT           4
+#define RGB_BUTTON_COUNT       4
 
+int const global_midi_channel = 191;
 int analog_switch_pin = A10;
-int switch_pins[4] = {A4,A5,A9,A8};
-int button_input_pins[4] = {A0,A1,A2,A3};
-int button_led_pins[BUTTON_COUNT] = {10,11,12,13};
+int rot_enc_int_pin[ENCDDER_COUNT] = {2,3,18};
+int rot_enc_sec_pin[ENCDDER_COUNT] = {4,5,6};
+int switch_pins[SWITCH_COUNT] = {A5,A4,A9,A8};
+int button_input_pins[RGB_BUTTON_COUNT] = {A0,A1,A2,A3};
+int button_led_pins[RGB_BUTTON_COUNT] = {10,11,12,13};
 int rgb_pins[] = {7,8,9};
 
+long i2c_last_request_time = 0;
+int i2c_request_interval = 0;
 
-#define ENCDDER_COUNT      3
-#define SWITCH_COUNT       4
-#define RGB_BUTTON_COUNT   4
+AnalogSwitch main_vol = AnalogSwitch(0,analog_switch_pin);
 
-RotaryEncoder encoders[ENCDDER_COUNT] = {RotaryEncoder(0,2,4), RotaryEncoder(1,3,5), RotaryEncoder(2,18,6)};
-AnalogSwitch main_vol = AnalogSwitch(3,analog_switch_pin);
-Switch switches[SWITCH_COUNT] = {Switch(4, switch_pins[0]), Switch(5, switch_pins[1]), Switch(6, switch_pins[2]), Switch(7, switch_pins[3])};
-RGBButtonMatrix buttons[RGB_BUTTON_COUNT] = {RGBButtonMatrix(8, button_input_pins[0],4), RGBButtonMatrix(9, button_input_pins[1],4), 
-                                             RGBButtonMatrix(10, button_input_pins[2],4), RGBButtonMatrix(11, button_input_pins[3],4)}; 
+RotaryEncoder encoders[ENCDDER_COUNT] = {RotaryEncoder(1,rot_enc_int_pin[0],rot_enc_sec_pin[0]), 
+                                         RotaryEncoder(2,rot_enc_int_pin[1],rot_enc_sec_pin[1]), 
+                                         RotaryEncoder(3,rot_enc_int_pin[2],rot_enc_sec_pin[2])};
 
+Switch switches[SWITCH_COUNT] = {Switch(4, switch_pins[0]), 
+                                 Switch(5, switch_pins[1]), 
+                                 Switch(10, switch_pins[2]), 
+                                 Switch(11, switch_pins[3])};
+
+RGBButtonMatrix buttons[RGB_BUTTON_COUNT] = {RGBButtonMatrix(6, button_input_pins[0],4), 
+                                             RGBButtonMatrix(7, button_input_pins[1],4), 
+                                             RGBButtonMatrix(8, button_input_pins[2],4), 
+                                             RGBButtonMatrix(9, button_input_pins[3],4)}; 
+
+// I2C TRANSMIT MESSAGE VARIABLES
+boolean midi_transmit = false;
+int midi_transmit_message[3];
+int midi_transmit_index = 0;
+
+char midi_channel[3];
+int midi_channel_index = 0;
+char midi_cc[3];
+int midi_cc_index = 0;
+char midi_val[3];
+int midi_val_index = 0;
 
 void setup() {
   Wire.begin();        // join i2c bus (address optional for master)
@@ -52,30 +76,12 @@ void setup() {
 }
 
 void loop() {
-  receiveI2C(20);
-  receiveI2C(21);
-  read_and_send_data();
+  makeI2Crequests();
+  read_and_send_console_data();
 }
 
 void encoder0Event() { encoders[0].event(); }
 void encoder1Event() { encoders[1].event(); }
 void encoder2Event() { encoders[2].event(); }
 
-void read_and_send_data() {
-    if (main_vol.available())
-        print_state(main_vol.ID, main_vol.get_state());
-    for (int i = 0; i < 3; i++) 
-        if (encoders[i].available()) print_state(encoders[i].ID, encoders[i].get_state());
-    for(int i = 0; i < 4; i++) 
-        if(switches[i].available()) print_state(switches[i].ID, switches[i].get_state());
-    for(int i = 0; i < 4; i++) 
-        if(buttons[i].available()) print_state(buttons[i].ID, buttons[i].get_state());
-}
 
-void print_state(int _id, float _state) {
-    Serial.print(CONSOLE_ID);
-    Serial.print(" ");
-    Serial.print(_id);
-    Serial.print(" ");
-    Serial.println(_state); 
-}
