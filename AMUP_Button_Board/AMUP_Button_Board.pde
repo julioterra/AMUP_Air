@@ -16,6 +16,9 @@
 #define inputAir              1
 #define inputTotal            inputOffsetAir + inputAir
 
+#define MIDI_MSG_START           255
+#define MIDI_MSG_BLANK           254
+
 const int muxControlPin[4] = {4,5,6,7};
 const int muxPosition[4][16] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
                                 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1,
@@ -25,9 +28,14 @@ const int muxPosition[4][16] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 int pad_id = -1;         // holds the id number for the button pad, used for i2c communications and data identification
 
 // I2C TRANSMIT MESSAGE VARIABLES
-boolean i2c_transmit = false;
-char i2c_transmit_message[I2C_TRANSMIT_MSG_SIZE];
-int i2c_transmit_index = 0;
+//boolean i2c_transmit = false;
+//char i2c_transmit_message[I2C_TRANSMIT_MSG_SIZE];
+//int i2c_transmit_index = 0;
+
+boolean i2c_transmit_byte = false;
+byte i2c_transmit_byte_message[I2C_TRANSMIT_MSG_SIZE];
+int i2c_transmit_byte_index = 0;
+
 
 // SERIAL RECEIVE MESSAGE VARIABLES
 char serial_receive_message[AIR_SERIAL_MSG_SIZE];
@@ -35,12 +43,24 @@ int serial_receive_message_counter = 0;   // holds the current position on the
 long serial_last_received = 0;            // holds when a partial serial message was last received 
 int serial_receive_interval = 500;        // holds how long to hold a partial message before discarting the contents
 
-RGBButtonTLC rgb_buttons[inputDigitalRGB] = {RGBButtonTLC(0, A3, 5),RGBButtonTLC(1, A3, 5),RGBButtonTLC(2, A3, 5),
-                                             RGBButtonTLC(3, A3, 5),RGBButtonTLC(4, A3, 5),RGBButtonTLC(5, A3, 5),
-                                             RGBButtonTLC(6, A3, 5),RGBButtonTLC(7, A3, 5)};
-Switch switches[inputDigital] = {Switch(8, A3), Switch(9, A3)}; 
-AnalogSwitch analog_switches[inputAnalog] = {AnalogSwitch(10, A3),AnalogSwitch(11, A3),AnalogSwitch(12, A3),
-                                             AnalogSwitch(13, A3),AnalogSwitch(14, A3),AnalogSwitch(15, A3)};
+Switch switches[inputDigital] = {Switch(2, A3), 
+                                 Switch(1, A3)}; 
+
+RGBButtonTLC rgb_buttons[inputDigitalRGB] = {RGBButtonTLC(4, A3, 5),
+                                             RGBButtonTLC(3, A3, 5),
+                                             RGBButtonTLC(2, A3, 5),
+                                             RGBButtonTLC(1, A3, 5),
+                                             RGBButtonTLC(4, A3, 5),
+                                             RGBButtonTLC(5, A3, 5),
+                                             RGBButtonTLC(6, A3, 5),
+                                             RGBButtonTLC(7, A3, 5)};
+
+AnalogSwitch analog_switches[inputAnalog] = {AnalogSwitch(3, A3),
+                                             AnalogSwitch(4, A3),
+                                             AnalogSwitch(5, A3),
+                                             AnalogSwitch(6, A3),
+                                             AnalogSwitch(7, A3),
+                                             AnalogSwitch(8, A3)};
 
 void setup() {
   Serial.begin(57600);

@@ -26,11 +26,11 @@ void sense_and_send() {
      if (connection_started && !lock_on) {
        // read data and print to serial if appropriate 
         if (air_sensor.available()) {
-            current_vol = air_sensor.get_print_state();
+            current_vol = air_sensor.get_print_byte_state();
         }
 
         // if volume has changed then update the leds
-        if (current_vol != previous_vol && current_vol != -1) {
+        if (current_vol != -1) {
             update_leds(current_vol);
             previous_vol = current_vol; 
         }
