@@ -15,12 +15,6 @@ void read_and_send_console_data() {
 }
 
 void print_state(int _id, int _state) {
-//    Serial.print(MIDI_GLOBAL_CHANNEL);
-//    Serial.print(" ");
-//    Serial.print(_id);
-//    Serial.print(" ");
-//    Serial.println(_state); 
-
     Serial.print(int(MIDI_GLOBAL_CHANNEL));
     Serial.print(" - ");
     Serial.print(int(_id));

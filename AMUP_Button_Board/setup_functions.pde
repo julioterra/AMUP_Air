@@ -5,7 +5,14 @@ void register_mux_and_led_pins() {
 }
 
 void register_rgb_button_states() {
-  int switchRGB [inputDigitalRGB][RGB_COUNT] = {2,1,0,      5,4,3,        8,7,6,      11,10,9,    16,17,18,   19,20,21,    22,23,24,    25,26,27};
+  int switchRGB [inputDigitalRGB][RGB_COUNT] = {2,1,0,      
+                                                5,4,3,        
+                                                8,7,6,      
+                                                11,10,9,    
+                                                16,17,18,   
+                                                19,20,21,    
+                                                22,23,24,    
+                                                25,26,27};
                                                    
   for (int i = 0; i < inputDigitalRGB; i++) {
       rgb_buttons[i].set_led_pins(switchRGB[i][R], switchRGB[i][G], switchRGB[i][B]); 

@@ -1,5 +1,4 @@
 void handle_serial_input () {
-//  read_serial_strings();
   read_serial_bytes();
 }
 
