@@ -48,9 +48,9 @@ void readI2C_sendMIDI(byte _adj_device_number) {
           if (c == byte(MIDI_MSG_END)) {
             read_msg = true;
             msg_index = 0;
-//            Serial.write(_adj_device_number);
             Serial.println();
             Serial.print(int(_adj_device_number));
+//            Serial.write(_adj_device_number);
           }
           // if a new_msg has been initiated but not fully read then read it
           else if (read_msg == true  && msg_index < 2) {
@@ -69,11 +69,29 @@ void readI2C_sendMIDI(byte _adj_device_number) {
 }
 
 void sendI2C_MIDI(int device_number, byte cc, byte val) {
-    Wire.beginTransmission(device_number); // transmit to device #4
+    int adj_device_number = device_number - 157;
+    Wire.beginTransmission(adj_device_number); // transmit to device #4
+    Wire.send(byte(255));          // sends end byte
     Wire.send(cc);           // sends cc number
     Wire.send(val);          // sends cc value
-    Wire.send(255);          // sends end byte
     Wire.endTransmission();  // stop transmitting
+}
+
+void sendI2C_MIDI(byte* new_msg) {
+    int adj_device_number = int(new_msg[0]) - 157;
+    Wire.beginTransmission(adj_device_number); // transmit to device #4
+    Wire.send(byte(255));          // sends end byte
+    Wire.send(byte(new_msg[1]));           // sends cc number
+    Wire.send(byte(new_msg[2]));          // sends cc value
+    Wire.endTransmission();  // stop transmitting
+
+    Serial.println();
+    Serial.print("send MIDI to panel");
+    Serial.print(adj_device_number);
+    Serial.print(" - ");
+    Serial.print(int(new_msg[1]));
+    Serial.print(" - ");
+    Serial.println(int(new_msg[2]));
 }
 
 

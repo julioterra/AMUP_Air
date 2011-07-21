@@ -78,6 +78,7 @@ void setup() {
 void loop() {
   makeI2Crequests();
   read_and_send_console_data();
+  midi_input();
 }
 
 void encoder0Event() { encoders[0].event(); }
