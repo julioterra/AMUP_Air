@@ -5,7 +5,7 @@ void register_mux_and_led_pins() {
 }
 
 void register_rgb_button_states() {
-  int switchRGB [inputDigitalRGB][RGB_COUNT] = {2,1,0,      
+  int switchRGB [midi_rgb_switch_length][RGB_COUNT] = {2,1,0,      
                                                 5,4,3,        
                                                 8,7,6,      
                                                 11,10,9,    
@@ -14,13 +14,17 @@ void register_rgb_button_states() {
                                                 22,23,24,    
                                                 25,26,27};
                                                    
-  for (int i = 0; i < inputDigitalRGB; i++) {
+  for (int i = 0; i < midi_rgb_switch_length; i++) {
+      rgb_buttons[i].set_midi_control(true); 
       rgb_buttons[i].set_led_pins(switchRGB[i][R], switchRGB[i][G], switchRGB[i][B]); 
-      rgb_buttons[i].set_led_state(0, random(1000), random(1000), random(1000));
-      rgb_buttons[i].set_led_state(1, random(1000), random(1000), random(1000));
-      rgb_buttons[i].set_led_state(2, random(1000), random(1000), random(1000));
-      rgb_buttons[i].set_led_state(3, random(1000), random(1000), random(1000));
-      rgb_buttons[i].set_led_state(4, 0,0,0);
+      rgb_buttons[i].set_led_state(0, 0,0,0);
+      rgb_buttons[i].set_led_state(1, 2000, 0, 2000);
+      rgb_buttons[i].set_led_state(2, 0, 2000, 2000);
+      rgb_buttons[i].set_led_state(3, 2000, 2000, 0);
+      rgb_buttons[i].set_led_state(4, 2500, 0, 0);
+      rgb_buttons[i].set_led_state(5, 0, 2500, 0);
+      rgb_buttons[i].set_led_state(6, 0, 0, 2500);
+      rgb_buttons[i].set_led_state(7, 1500,1500,1500);
   }
 }
 
@@ -34,6 +38,7 @@ void request_id_number() {
      // control LED light blinking
      if (millis() - last_change > change_interval) {
           Tlc.clear();
+          rgb_buttons[current_led].set_current_led_state(1);
           rgb_buttons[current_led].turn_on_leds();
           rgb_buttons[current_led].update_leds();
           Tlc.update();
@@ -44,7 +49,7 @@ void request_id_number() {
       }
 
       // read input from pad to determine ID number of this button pad
-      for (int i = 0; i < inputDigitalRGB; i++) {
+      for (int i = 0; i < midi_rgb_switch_length; i++) {
           prep_mux(i);
           if (rgb_buttons[i].available()) {
             if (i == 3 || i == 4) pad_id = 20;
@@ -111,7 +116,7 @@ void request_air_confirmation() {
     }
 
     // turn on all led lights for the current button states
-    for (int i = 0; i < inputDigitalRGB; i++) {
+    for (int i = 0; i < midi_rgb_switch_length; i++) {
       rgb_buttons[i].set_current_led_state(0);
       rgb_buttons[i].turn_on_leds();
     }

@@ -23,16 +23,11 @@ void receiveEvent(int howMany) {
               read_msg = true;
               msg_index = 0;
               
-//              Serial.println();
-//              Serial.print("msg received: ");
             }
             // if a new_msg has been initiated but not fully read then read it
             else if (read_msg == true  && msg_index < 2) {
                 new_msg[msg_index] = new_byte;
                 msg_index++; 
-
-//                Serial.print(" - ");
-//                Serial.print(int(new_msg[msg_index-1]));
 
                 // if message has been fully read then set new_msg to false
                 if (msg_index >= 2) {
@@ -51,5 +46,14 @@ void route_event(byte* midi_msg) {
       Serial.print(", ");
     }
     Serial.println();
-  
+
+    int cc_number = int(midi_msg[0]);
+    if (cc_number >= midi_rgb_switch_start && cc_number <= (midi_rgb_switch_start+midi_rgb_switch_length)) {
+        for (int i = 0; i < midi_rgb_switch_length; i++) {
+            if (cc_number == rgb_buttons[i].ID) {
+                rgb_buttons[i].set_current_led_state(int(midi_msg[1]));
+                break;  
+            }         
+        }
+    }
 }

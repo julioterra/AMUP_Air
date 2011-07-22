@@ -7,14 +7,20 @@
 #include <Switch.h>
 #include <RGBButtonTLC.h>
 
-#define inputDigitalRGB       8
-#define inputOffsetDigital    inputDigitalRGB
-#define inputDigital          2
-#define inputOffsetAnalog     inputDigitalRGB + inputDigital
-#define inputAnalog           6
-#define inputOffsetAir        inputOffsetAnalog + inputAnalog
-#define inputAir              1
-#define inputTotal            inputOffsetAir + inputAir
+#define midi_air_start            0
+#define midi_air_length           1
+#define midi_switch_start         midi_air_start+ midi_air_length
+#define midi_switch_length        2
+#define midi_analog_start         midi_switch_start + midi_switch_length 
+#define midi_analog_length        6
+#define midi_rgb_switch_start     midi_analog_start + midi_analog_length
+#define midi_rgb_switch_length    8
+#define midi_total                midi_rgb_switch_start + midi_rgb_switch_length
+
+#define mux_analog                0
+#define mux_analog                10
+#define mux_switch                8
+
 
 #define MIDI_MSG_START           255
 #define MIDI_MSG_BLANK           254
@@ -43,24 +49,24 @@ int serial_receive_message_counter = 0;   // holds the current position on the
 long serial_last_received = 0;            // holds when a partial serial message was last received 
 int serial_receive_interval = 500;        // holds how long to hold a partial message before discarting the contents
 
-Switch switches[inputDigital] = {Switch(2, A3), 
+Switch switches[midi_switch_length] = {Switch(2, A3), 
                                  Switch(1, A3)}; 
 
-RGBButtonTLC rgb_buttons[inputDigitalRGB] = {RGBButtonTLC(4, A3, 5),
-                                             RGBButtonTLC(3, A3, 5),
-                                             RGBButtonTLC(2, A3, 5),
-                                             RGBButtonTLC(1, A3, 5),
-                                             RGBButtonTLC(4, A3, 5),
-                                             RGBButtonTLC(5, A3, 5),
-                                             RGBButtonTLC(6, A3, 5),
-                                             RGBButtonTLC(7, A3, 5)};
+RGBButtonTLC rgb_buttons[midi_rgb_switch_length] = {RGBButtonTLC(12, A3, 5),
+                                             RGBButtonTLC(11, A3, 8),
+                                             RGBButtonTLC(10, A3, 8),
+                                             RGBButtonTLC(9, A3, 8),
+                                             RGBButtonTLC(13, A3, 8),
+                                             RGBButtonTLC(14, A3, 8),
+                                             RGBButtonTLC(15, A3, 8),
+                                             RGBButtonTLC(16, A3, 8)};
 
-AnalogSwitch analog_switches[inputAnalog] = {AnalogSwitch(3, A3),
-                                             AnalogSwitch(4, A3),
-                                             AnalogSwitch(5, A3),
-                                             AnalogSwitch(6, A3),
+AnalogSwitch analog_switches[midi_analog_length] = {AnalogSwitch(8, A3),
                                              AnalogSwitch(7, A3),
-                                             AnalogSwitch(8, A3)};
+                                             AnalogSwitch(6, A3),
+                                             AnalogSwitch(5, A3),
+                                             AnalogSwitch(4, A3),
+                                             AnalogSwitch(3, A3)};
 
 void setup() {
   Serial.begin(57600);
