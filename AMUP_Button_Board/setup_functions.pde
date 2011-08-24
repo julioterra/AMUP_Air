@@ -54,8 +54,8 @@ void request_id_number() {
           if (rgb_buttons[i].available()) {
             if (i == 3 || i == 4) pad_id = 20;
             else if (i == 2 || i == 5) pad_id = 21;
-            else if (i == 1 || i == 6) pad_id = 22;
-            else if (i == 0 || i == 7) pad_id = 23;
+            else if (i == 1 || i == 6) pad_id = 20;
+            else if (i == 0 || i == 7) pad_id = 21;
           }
       }
   }

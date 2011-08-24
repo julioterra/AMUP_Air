@@ -7,19 +7,22 @@
 #include <RGBButtonMatrix.h>
 
 #define MIDI_GLOBAL_CHANNEL    191 // midi cc channel 16
-#define MIDI_MSG_END           255
+#define MIDI_MSG_START           255
 #define ENCDDER_COUNT          3
 #define SWITCH_COUNT           4
 #define RGB_BUTTON_COUNT       4
 #define RGB_BUTTON_START       6
 
-int analog_switch_pin = A10;
-int rot_enc_int_pin[ENCDDER_COUNT] = {2,3,18};
-int rot_enc_sec_pin[ENCDDER_COUNT] = {4,5,6};
-int switch_pins[SWITCH_COUNT] = {A5,A4,A9,A8};
-int button_input_pins[RGB_BUTTON_COUNT] = {A0,A1,A2,A3};
-int button_led_pins[RGB_BUTTON_COUNT] = {10,11,12,13};
-int rgb_pins[] = {7,8,9};
+
+byte const BUT_PAN_MODE_BUTTON = byte(2);
+int const analog_switch_pin = A10;
+int const rot_enc_int_pin[ENCDDER_COUNT] = {18,3,2};
+int const rot_enc_sec_pin[ENCDDER_COUNT] = {6,5,4};
+int const switch_pins[SWITCH_COUNT] = {A5,A4,A9,A8};
+int const button_input_pins[RGB_BUTTON_COUNT] = {A0,A1,A2,A3};
+int const button_led_pins[RGB_BUTTON_COUNT] = {10,11,12,13};
+int const rgb_pins[] = {7,8,9};
+int const midi_cc_channel_offset = 156;
 
 long i2c_last_request_time = 0;
 int i2c_request_interval = 0;

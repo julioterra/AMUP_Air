@@ -13,8 +13,16 @@
 #define LOCK_OFF_COLOR    R
 
 // LED PIN DEFINITION (pins on TLC 5940)
-int const rgbLED [LED_COUNT][RGB_COUNT] = {28,30,29,25,27,26,22,24,23,19,21,20,
-                                         16,18,17,12,14,13,9,11,10,3,5,4,0,2,1};
+int const rgbLED [LED_COUNT][RGB_COUNT] = {28,30,29,
+                                           25,27,26,
+                                           22,24,23,
+                                           19,21,20,
+                                           16,18,17,
+                                           12,14,13,
+                                           9,11,10,
+                                           6,8,7,
+                                           3,5,4,
+                                           0,2,1};
 // IMPORTANT NOTE: five digital pins are used to control the LED drivers (TLC 5940); pins 3, 9, 10, 11, 13.
 // Communication uses a synchronized serial protocol
 
