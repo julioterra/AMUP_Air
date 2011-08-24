@@ -27,7 +27,7 @@ void handle_midi_input() {
 void parse_MIDI(byte* new_msg) {
   int midi_channel_number = int(new_msg[0]);
   if (midi_channel_number == 191) route_MIDI_local(new_msg);
-  else if (midi_channel_number == 177 || midi_channel_number == 178) route_MIDI_i2c(new_msg);
+  else if (midi_channel_number == 176 || midi_channel_number == 177) route_MIDI_i2c(new_msg);
 }
 
 void route_MIDI_local(byte* midi_msg) {
@@ -43,7 +43,7 @@ void route_MIDI_local(byte* midi_msg) {
 }
 
 void route_MIDI_i2c(byte* new_msg) {
-    int adj_device_number = int(new_msg[0]) - 157;
+    int adj_device_number = int(new_msg[0]) - 156;
     Wire.beginTransmission(adj_device_number); // transmit to device #4
     Wire.send(new_msg, 3);          // sends end byte
     Wire.endTransmission();  // stop transmitting
